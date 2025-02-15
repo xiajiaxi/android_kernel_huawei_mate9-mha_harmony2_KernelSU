@@ -1,0 +1,2 @@
+# android_kernel_huawei_mate9-mha_harmony2_KernelSU
+适用于安卓10及以上的华为mate9-mha系列设备的KernelSU的内核
