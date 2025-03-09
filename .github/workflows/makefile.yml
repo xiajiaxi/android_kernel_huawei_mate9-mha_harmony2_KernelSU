@@ -1,0 +1,36 @@
+name: Build Kernel
+
+on:
+  workflow_dispatch:  # 允许手动触发工作流
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04  # 使用 Ubuntu 20.04 环境
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3  # 检出仓库代码
+
+    - name: Install Python 2
+      run: sudo apt-get update && sudo apt-get install -y python2
+
+    - name: Set Python 2 as default
+      run: sudo ln -sf /usr/bin/python2.7 /usr/bin/python
+
+    - name: Set environment variables
+      run: |
+        export ARCH=arm64
+        export PATH=$PATH:/aarch64-linux-android-4.9/bin
+        export CROSS_COMPILE=aarch64-linux-android-
+
+    - name: Generate configuration
+      run: make ARCH=arm64 O=out merge_hi3660_defconfig
+
+    - name: Build kernel
+      run: make ARCH=arm64 O=out -j$(nproc)  # 使用 nproc 获取 CPU 核心数并乘以 2
+
+    - name: Move Image.gz to tools directory
+      run: mv out/arch/arm64/boot/Image.gz tools/
+
+    - name: Pack kernel image
+      run: bash pack_kernerimage_cmd.sh
